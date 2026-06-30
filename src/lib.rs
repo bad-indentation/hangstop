@@ -69,7 +69,7 @@ where
 mod tests {
     use std::collections::HashSet;
 
-use super::*;
+    use super::*;
 
     #[test]
     fn test_build_regex() {
@@ -90,7 +90,10 @@ use super::*;
     fn test_prune_wordlist() {
         let re = build_regex("abc??", "ghi").unwrap();
         eprintln!("{re}");
-        let words: HashSet<String> = ["abcde", "abcef", "abcfg", "abcgh", "abcbe", "abc"].iter().map(|s| s.to_string()).collect();
+        let words: HashSet<String> = ["abcde", "abcef", "abcfg", "abcgh", "abcbe", "abc"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
         let expected: HashSet<String> = ["abcde", "abcef"].iter().map(|s| s.to_string()).collect();
         let filtered = prune_wordlist(re, words);
 
