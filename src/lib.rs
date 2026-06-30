@@ -4,6 +4,8 @@
 //! This module provides helper functions and structs for the command line
 //! utility accessed in `main.rs`. 
 
+use regex::Regex;
+
 /// Constructs a regular expression, as an owned String, given the game state
 /// and the incorrectly guessed characters. If `state` contains any characters
 /// other than `?` and ASCII letters or `forbidden` contains any characters 
@@ -32,7 +34,7 @@ fn build_regex(state: &str, forbidden: &str) -> Result<String, &'static str> {
 
     excluded.push_str(&forbidden.to_lowercase());
 
-    let mut re = String::new();
+    let mut re = String::from("^");
 
     for letter in state.chars() {
         match letter {
@@ -42,7 +44,17 @@ fn build_regex(state: &str, forbidden: &str) -> Result<String, &'static str> {
         }
     }
 
+    re.push('$');
     Ok(re)
+}
+
+/// Prunes the wordlist and removes any words that do not fit the regex
+fn prune_wordlist<T>(regex: String, wordlist: &T) -> T 
+    where T: IntoIterator {
+    let re = Regex::new(&regex).expect("regex should be valid.");
+
+    // wordlist.into_iter().filter(re.find)
+    todo!()
 }
 
 #[cfg(test)]
@@ -52,7 +64,7 @@ mod tests {
     #[test]
     fn test_build_regex() {
         let re = build_regex("A???e", "krbg").unwrap();
-        assert_eq!(re, "a[a-z^aekrbg][a-z^aekrbg][a-z^aekrbg]e".to_string());
+        assert_eq!(re, "^a[a-z^aekrbg][a-z^aekrbg][a-z^aekrbg]e$".to_string());
     }
 
     #[test]
