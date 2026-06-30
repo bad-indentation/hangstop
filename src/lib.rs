@@ -89,7 +89,6 @@ mod tests {
     #[test]
     fn test_prune_wordlist() {
         let re = build_regex("abc??", "ghi").unwrap();
-        eprintln!("{re}");
         let words: HashSet<String> = ["abcde", "abcef", "abcfg", "abcgh", "abcbe", "abc"]
             .iter()
             .map(|s| s.to_string())
