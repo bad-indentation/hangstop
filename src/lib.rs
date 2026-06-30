@@ -53,9 +53,9 @@ fn build_regex(state: &str, forbidden: &str) -> Result<String, &'static str> {
 }
 
 /// Prunes the wordlist and removes any words that do not fit the regex
-fn prune_wordlist<T>(regex: String, wordlist: &T) -> T
+fn prune_wordlist<T>(regex: String, wordlist: T) -> T
 where
-    T: IntoIterator,
+    T: IntoIterator<Item = String> + FromIterator<String>,
 {
     let re = Regex::new(&regex).expect("regex should be valid.");
 
@@ -67,7 +67,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use std::collections::HashSet;
+
+use super::*;
 
     #[test]
     fn test_build_regex() {
@@ -82,5 +84,16 @@ mod tests {
 
         let re = build_regex("h?ll?", "(*&j)");
         assert!(re.is_err());
+    }
+
+    #[test]
+    fn test_prune_wordlist() {
+        let re = build_regex("abc??", "ghi").unwrap();
+        eprintln!("{re}");
+        let words: HashSet<String> = ["abcde", "abcef", "abcfg", "abcgh", "abcbe", "abc"].iter().map(|s| s.to_string()).collect();
+        let expected: HashSet<String> = ["abcde", "abcef"].iter().map(|s| s.to_string()).collect();
+        let filtered = prune_wordlist(re, words);
+
+        assert_eq!(expected, filtered);
     }
 }
