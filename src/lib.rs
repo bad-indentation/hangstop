@@ -65,6 +65,12 @@ where
         .collect()
 }
 
+/// Returns the number of bits of information associated with the 
+/// given probability `prob`
+fn get_bits(prob: f32) -> f32 {
+    f32::log2(1. / prob)
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashSet;
@@ -97,5 +103,11 @@ mod tests {
         let filtered = prune_wordlist(re, words);
 
         assert_eq!(expected, filtered);
+    }
+
+    #[test]
+    fn test_bits() {
+        // Probably doesn't deserve a test, but oh well...
+        assert_eq!(5.0, get_bits(1.0 / 32.0))
     }
 }
