@@ -42,7 +42,7 @@ fn build_regex(state: &str, forbidden: &str) -> Result<String, &'static str> {
 
     for letter in state.chars() {
         match letter {
-            '?' => re.push_str(&format!("[a-z^{excluded}]")),
+            '?' => re.push_str(&format!("[^{excluded}]")),
             'a'..='z' => re.push(letter),
             _ => return Err("game state must only contain alphabetic characters or ?s."),
         }
@@ -74,7 +74,7 @@ use super::*;
     #[test]
     fn test_build_regex() {
         let re = build_regex("A???e", "krbg").unwrap();
-        assert_eq!(re, "^a[a-z^aekrbg][a-z^aekrbg][a-z^aekrbg]e$".to_string());
+        assert_eq!(re, "^a[^aekrbg][^aekrbg][^aekrbg]e$".to_string());
     }
 
     #[test]
