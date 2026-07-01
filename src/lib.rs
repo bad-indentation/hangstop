@@ -6,10 +6,13 @@
 
 use std::cmp;
 use std::collections::{HashMap, HashSet};
+use std::error::Error;
 use std::fmt::Display;
 
 use regex::Regex;
 use clap::Parser;
+
+const ALL_WORDS: &str = include_str!("../public/wordlist.txt");
 
 /// Constructs a regular expression, as an owned String, given the game state
 /// and the incorrectly guessed characters. If `state` contains any characters
@@ -217,6 +220,12 @@ struct Config {
     /// When enabled, list the remaining candidate words and exit.
     #[arg(short, long, default_value_t = false)]
     list: bool,
+}
+
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let prune_re = build_regex(&config.state, &config.incorrect)?;
+
+    Ok(())
 }
 
 #[cfg(test)]
