@@ -4,8 +4,8 @@
 //! This module provides helper functions and structs for the command line
 //! utility accessed in `main.rs`.
 
+use std::cmp;
 use std::collections::{HashMap, HashSet};
-use std::cmp::{self, Reverse};
 use std::fmt::Display;
 
 use regex::Regex;
@@ -69,7 +69,7 @@ where
         .collect()
 }
 
-/// Returns the number of bits of information associated with the 
+/// Returns the number of bits of information associated with the
 /// given probability `prob`
 fn get_bits(prob: f32) -> f32 {
     f32::log2(1. / prob)
@@ -78,7 +78,7 @@ fn get_bits(prob: f32) -> f32 {
 /// Returns a bitmask `word.len()` bits long.
 ///
 /// A `1` in the bitmask indicates that the `letter` is present
-/// in that space. A `0` indicates, _quelle surprise_, that it is 
+/// in that space. A `0` indicates, _quelle surprise_, that it is
 /// not present.
 ///
 /// # Panics
@@ -88,7 +88,7 @@ fn get_bitmask(letter: char, word: &str) -> u32 {
     let letter = match letter {
         'a'..='z' => letter,
         'A'..='Z' => letter.to_ascii_lowercase(),
-        _ => panic!("`letter` must be an alphabetic character")
+        _ => panic!("`letter` must be an alphabetic character"),
     };
 
     let mut bitmask = 0;
@@ -112,21 +112,26 @@ fn get_entropy_addend(occur: usize, total: usize) -> f32 {
 /// Returns the entropy, or the expected information to be gained,
 /// of the given letter.
 ///
-/// This is calculated using Shannon's entropy formula, 
+/// This is calculated using Shannon's entropy formula,
 /// which is the sum `p(x) * -log2(p(x))` for all x
 ///
 /// I'm sorry, I gave up on generics.
 /// [ ] TODO: make this work on any iterable type
-fn get_entropy(letter: char, wordlist: &HashSet<String>) -> f32 
-{
+fn get_entropy(letter: char, wordlist: &HashSet<String>) -> f32 {
     let mut counter: HashMap<u32, usize> = HashMap::new();
     let mut total = 0;
     for word in wordlist {
         total += 1;
-        counter.entry(get_bitmask(letter, word)).and_modify(|ct| *ct += 1).or_insert(1);
+        counter
+            .entry(get_bitmask(letter, word))
+            .and_modify(|ct| *ct += 1)
+            .or_insert(1);
     }
 
-    counter.values().map(|ct| get_entropy_addend(*ct, total)).sum()
+    counter
+        .values()
+        .map(|ct| get_entropy_addend(*ct, total))
+        .sum()
 }
 
 /// This struct maps any given character to its associated entropy for easier
@@ -146,7 +151,7 @@ impl Eq for LetterEntropy {}
 
 impl PartialOrd for LetterEntropy {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        // The swap between self and other is intentional so that the 
+        // The swap between self and other is intentional so that the
         // list is sorted from greatest to least
         other.entropy.partial_cmp(&self.entropy)
     }
@@ -154,7 +159,7 @@ impl PartialOrd for LetterEntropy {
 
 impl Ord for LetterEntropy {
     fn cmp(&self, other: &Self) -> cmp::Ordering {
-        // The swap between self and other is intentional so that the 
+        // The swap between self and other is intentional so that the
         // list is sorted from greatest to least
         other.entropy.total_cmp(&self.entropy)
     }
@@ -162,28 +167,31 @@ impl Ord for LetterEntropy {
 
 impl Display for LetterEntropy {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {:.3} bits", self.letter, self.entropy) 
-    } 
+        write!(f, "{}: {:.3} bits", self.letter, self.entropy)
+    }
 }
 
-/// Returns a sorted list of each letter matched to its respective entropy 
+/// Returns a sorted list of each letter matched to its respective entropy
 fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> Vec<LetterEntropy> {
     let mut entropies = Vec::new();
-    
+
     for letter in remaining_letters.chars() {
-        entropies.push(LetterEntropy { letter, entropy: get_entropy(letter, wordlist) });
+        entropies.push(LetterEntropy {
+            letter,
+            entropy: get_entropy(letter, wordlist),
+        });
     }
 
-   entropies.sort(); 
+    entropies.sort();
 
-   entropies
+    entropies
 }
 
-/// Returns all letters that can be guessed without repeating a 
+/// Returns all letters that can be guessed without repeating a
 /// previous guess
 fn get_guessable(state: &str, forbidden: &str) -> String {
     let mut guessable = String::new();
-    
+
     for letter in ([state, forbidden].concat()).chars() {
         if letter.is_ascii_alphabetic() && !guessable.contains(letter) {
             guessable.push(letter);
@@ -245,16 +253,13 @@ mod tests {
             .iter()
             .map(|s| s.to_string())
             .collect();
- 
+
         assert_eq!(1.5, get_entropy('e', &words));
-    } 
+    }
 
     #[test]
     fn test_sorted_entropy() {
-        let words: HashSet<String> = ["ab", "cb"]
-            .iter()
-            .map(|s| s.to_string())
-            .collect();
+        let words: HashSet<String> = ["ab", "cb"].iter().map(|s| s.to_string()).collect();
 
         let mut sorted_letters = get_sorted_entropies("abcd", &words)
             .into_iter()
@@ -278,7 +283,8 @@ mod tests {
     #[test]
     fn test_guessable() {
         // Order of guessable letters does not matter
-        let guessable: HashSet<char> = HashSet::from_iter((&get_guessable("?e??o", "tains")).chars());
+        let guessable: HashSet<char> =
+            HashSet::from_iter((&get_guessable("?e??o", "tains")).chars());
         let expected = HashSet::from(['e', 'o', 't', 'a', 'i', 'n', 's']);
 
         assert_eq!(guessable, expected)
