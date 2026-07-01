@@ -179,6 +179,20 @@ fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> 
    entropies
 }
 
+/// Returns all letters that can be guessed without repeating a 
+/// previous guess
+fn get_guessable(state: &str, forbidden: &str) -> String {
+    let mut guessable = String::new();
+    
+    for letter in ([state, forbidden].concat()).chars() {
+        if letter.is_ascii_alphabetic() && !guessable.contains(letter) {
+            guessable.push(letter);
+        }
+    }
+
+    guessable
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashSet;
@@ -259,5 +273,14 @@ mod tests {
 
         item = sorted_letters.next();
         assert!(item == Some('b') || item == Some('d'));
+    }
+
+    #[test]
+    fn test_guessable() {
+        // Order of guessable letters does not matter
+        let guessable: HashSet<char> = HashSet::from_iter((&get_guessable("?e??o", "tains")).chars());
+        let expected = HashSet::from(['e', 'o', 't', 'a', 'i', 'n', 's']);
+
+        assert_eq!(guessable, expected)
     }
 }
