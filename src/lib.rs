@@ -9,6 +9,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 
 use regex::Regex;
+use clap::Parser;
 
 /// Constructs a regular expression, as an owned String, given the game state
 /// and the incorrectly guessed characters. If `state` contains any characters
@@ -199,6 +200,14 @@ fn get_guessable(state: &str, forbidden: &str) -> String {
     }
 
     guessable
+}
+
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Config {
+    state: String,
+    incorrect: String,
+    list: bool,
 }
 
 #[cfg(test)]
