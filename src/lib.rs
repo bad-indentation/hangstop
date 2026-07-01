@@ -209,7 +209,7 @@ fn get_guessable(state: &str, forbidden: &str) -> String {
 /// letter to guess in a Hangman game.
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
-struct Config {
+pub struct Config {
     /// The mystery word, with '?' representing unknown letters. Example: "h?llo"
     state: String,
 
@@ -222,7 +222,7 @@ struct Config {
     list: bool,
 }
 
-fn run(config: Config) -> Result<(), Box<dyn Error>> {
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let prune_re = build_regex(&config.state, &config.incorrect)?;
     let mut word_set: HashSet<String> = ALL_WORDS.split('\n').map(String::from).collect();
     word_set = prune_wordlist(prune_re, word_set);
