@@ -224,6 +224,36 @@ struct Config {
 
 fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let prune_re = build_regex(&config.state, &config.incorrect)?;
+    let mut word_set: HashSet<String> = ALL_WORDS.split('\n').map(String::from).collect();
+    word_set = prune_wordlist(prune_re, word_set);
+
+    if word_set.is_empty() {
+        println!("There are no valid English words that match this game state.");
+        return Ok(());
+    }
+    
+    if word_set.len() == 1 {
+        println!("The mystery word must be {}.", word_set.drain().next().expect("length of set must be 1"));
+        return Ok(());
+    }
+
+    if config.list {
+        for word in &word_set {
+            println!("{word}");
+        }
+        
+        eprintln!("{} possible words remaining", word_set.len());
+        return Ok(());
+    }
+    
+    let valid_letters = get_guessable(&config.state, &config.incorrect);
+    eprintln!("Best letters to guess:");
+    
+    for letter_entropy in get_sorted_entropies(&valid_letters, &word_set) {
+        println!("{}", letter_entropy);
+    }
+    
+    eprintln!("{} possible words remaining", word_set.len());
 
     Ok(())
 }
