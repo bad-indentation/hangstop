@@ -50,7 +50,9 @@ fn build_regex(state: &str, forbidden: &str) -> Result<String, &'static str> {
 
     for letter in state.chars() {
         match letter {
-            '?' => re.push_str(&format!("[^{excluded}]")),
+            '?' =>  if !excluded.is_empty() {
+                re.push_str(&format!("[^{excluded}]")); 
+            } else { re.push('.'); },
             'a'..='z' => re.push(letter),
             _ => return Err("game state must only contain alphabetic characters or ?s."),
         }
@@ -277,6 +279,12 @@ mod tests {
 
         let re = build_regex("h?ll?", "(*&j)");
         assert!(re.is_err());
+    }
+
+    #[test]
+    fn test_build_regex_none_forbidden() {
+        let re = build_regex("?????", "").unwrap();
+        assert_eq!(re, "^.....$".to_string());
     }
 
     #[test]
