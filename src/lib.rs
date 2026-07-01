@@ -4,6 +4,8 @@
 //! This module provides helper functions and structs for the command line
 //! utility accessed in `main.rs`.
 
+use std::collections::{HashMap, HashSet};
+
 use regex::Regex;
 
 /// Constructs a regular expression, as an owned String, given the game state
@@ -99,17 +101,30 @@ fn get_bitmask(letter: char, word: &str) -> u32 {
     bitmask
 }
 
+/// Small utility function. `p(x) * -log2(p(x))` for some `p(x)`
+fn get_entropy_addend(occur: usize, total: usize) -> f32 {
+    let prob = occur as f32 / total as f32;
+    get_bits(prob) * prob
+}
+
 /// Returns the entropy, or the expected information to be gained,
 /// of the given letter.
 ///
 /// This is calculated using Shannon's entropy formula, 
-/// which is the sum of all `p(x) * -log2(p(x))`
-fn get_entropy<T>(letter: char, wordlist: &T) -> f32 
-where
-    T: IntoIterator<Item = String> + FromIterator<String>,
-
+/// which is the sum `p(x) * -log2(p(x))` for all x
+///
+/// I'm sorry, I gave up on generics.
+/// [ ] TODO: make this work on any iterable type
+fn get_entropy(letter: char, wordlist: &HashSet<String>) -> f32 
 {
-    0.0
+    let mut counter: HashMap<u32, usize> = HashMap::new();
+    let mut total = 0;
+    for word in wordlist {
+        total += 1;
+        counter.entry(get_bitmask(letter, word)).and_modify(|ct| *ct += 1).or_insert(1);
+    }
+
+    counter.values().map(|ct| get_entropy_addend(*ct, total)).sum()
 }
 
 #[cfg(test)]
@@ -160,11 +175,11 @@ mod tests {
 
     #[test]
     fn test_entropy() {
-        let words: Vec<String> = ["abc", "def"]
+        let words: HashSet<String> = ["hello", "lends", "flees", "stick"]
             .iter()
             .map(|s| s.to_string())
             .collect();
  
-        assert_eq!(1.0, get_entropy('a', &words));
+        assert_eq!(1.5, get_entropy('e', &words));
     }
 }
