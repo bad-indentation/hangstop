@@ -5,6 +5,8 @@
 //! utility accessed in `main.rs`.
 
 use std::collections::{HashMap, HashSet};
+use std::cmp;
+use std::fmt::Display;
 
 use regex::Regex;
 
@@ -125,6 +127,36 @@ fn get_entropy(letter: char, wordlist: &HashSet<String>) -> f32
     }
 
     counter.values().map(|ct| get_entropy_addend(*ct, total)).sum()
+}
+
+/// This struct maps any given character to its associated entropy for easier
+/// sorting and retrieval
+struct LetterEntropy {
+    letter: char,
+    entropy: f32,
+}
+
+impl PartialEq for LetterEntropy {
+    fn eq(&self, other: &Self) -> bool {
+        self.entropy == other.entropy && self.letter == other.letter
+    }
+}
+
+impl PartialOrd for LetterEntropy {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        self.entropy.partial_cmp(&other.entropy)
+    }
+}
+
+impl Display for LetterEntropy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}: {:.3} bits", self.letter, self.entropy) 
+    } 
+}
+
+/// Returns a sorted list 
+fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> Vec<LetterEntropy> {
+
 }
 
 #[cfg(test)]
