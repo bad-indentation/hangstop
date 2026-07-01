@@ -5,7 +5,7 @@
 //! utility accessed in `main.rs`.
 
 use std::collections::{HashMap, HashSet};
-use std::cmp;
+use std::cmp::{self, Reverse};
 use std::fmt::Display;
 
 use regex::Regex;
@@ -142,9 +142,21 @@ impl PartialEq for LetterEntropy {
     }
 }
 
+impl Eq for LetterEntropy {}
+
 impl PartialOrd for LetterEntropy {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        self.entropy.partial_cmp(&other.entropy)
+        // The swap between self and other is intentional so that the 
+        // list is sorted from greatest to least
+        other.entropy.partial_cmp(&self.entropy)
+    }
+}
+
+impl Ord for LetterEntropy {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        // The swap between self and other is intentional so that the 
+        // list is sorted from greatest to least
+        other.entropy.total_cmp(&self.entropy)
     }
 }
 
@@ -156,7 +168,15 @@ impl Display for LetterEntropy {
 
 /// Returns a sorted list 
 fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> Vec<LetterEntropy> {
+    let mut entropies = Vec::new();
+    
+    for letter in remaining_letters.chars() {
+        entropies.push(LetterEntropy { letter, entropy: get_entropy(letter, wordlist) });
+    }
 
+   entropies.sort(); 
+
+   entropies
 }
 
 #[cfg(test)]
@@ -213,5 +233,31 @@ mod tests {
             .collect();
  
         assert_eq!(1.5, get_entropy('e', &words));
+    } 
+
+    #[test]
+    fn test_sorted_entropy() {
+        let words: HashSet<String> = ["ab", "cb"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+
+        let mut sorted_letters = get_sorted_entropies("abcd", &words)
+            .into_iter()
+            .map(|letter| letter.letter);
+
+        // Order does not matter for equally ranked letters.
+        // 'a' or 'c' should have the most information (1 bit)
+        let mut item = sorted_letters.next();
+        assert!(item == Some('a') || item == Some('c'));
+
+        item = sorted_letters.next();
+        assert!(item == Some('a') || item == Some('c'));
+
+        item = sorted_letters.next();
+        assert!(item == Some('b') || item == Some('d'));
+
+        item = sorted_letters.next();
+        assert!(item == Some('b') || item == Some('d'));
     }
 }
