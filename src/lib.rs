@@ -71,6 +71,47 @@ fn get_bits(prob: f32) -> f32 {
     f32::log2(1. / prob)
 }
 
+/// Returns a bitmask `word.len()` bits long.
+///
+/// A `1` in the bitmask indicates that the `letter` is present
+/// in that space. A `0` indicates, _quelle surprise_, that it is 
+/// not present.
+///
+/// # Panics
+/// This function panics if the `letter` is not alphabetic,
+/// since this should have been checked earlier in the program
+fn get_bitmask(letter: char, word: &str) -> u32 {
+    let letter = match letter {
+        'a'..='z' => letter,
+        'A'..='Z' => letter.to_ascii_lowercase(),
+        _ => panic!("`letter` must be an alphabetic character")
+    };
+
+    let mut bitmask = 0;
+
+    for space in word.chars() {
+        bitmask <<= 1;
+        if space == letter {
+            bitmask += 1;
+        }
+    }
+
+    bitmask
+}
+
+/// Returns the entropy, or the expected information to be gained,
+/// of the given letter.
+///
+/// This is calculated using Shannon's entropy formula, 
+/// which is the sum of all `p(x) * -log2(p(x))`
+fn get_entropy<T>(letter: char, wordlist: &T) -> f32 
+where
+    T: IntoIterator<Item = String> + FromIterator<String>,
+
+{
+    0.0
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashSet;
@@ -109,5 +150,21 @@ mod tests {
     fn test_bits() {
         // Probably doesn't deserve a test, but oh well...
         assert_eq!(5.0, get_bits(1.0 / 32.0))
+    }
+
+    #[test]
+    fn test_bitmask() {
+        assert_eq!(0b00110, get_bitmask('l', "hello"));
+        assert_eq!(0b010101, get_bitmask('a', "banana"));
+    }
+
+    #[test]
+    fn test_entropy() {
+        let words: Vec<String> = ["abc", "def"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+ 
+        assert_eq!(1.0, get_entropy('a', &words));
     }
 }
