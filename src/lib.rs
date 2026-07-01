@@ -166,7 +166,7 @@ impl Display for LetterEntropy {
     } 
 }
 
-/// Returns a sorted list 
+/// Returns a sorted list of each letter matched to its respective entropy 
 fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> Vec<LetterEntropy> {
     let mut entropies = Vec::new();
     
