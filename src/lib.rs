@@ -197,9 +197,10 @@ fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> 
 /// previous guess
 fn get_guessable(state: &str, forbidden: &str) -> String {
     let mut guessable = String::new();
+    let excluded = [state, forbidden].concat();
 
-    for letter in ([state, forbidden].concat()).chars() {
-        if letter.is_ascii_alphabetic() && !guessable.contains(letter) {
+    for letter in "abcdefghijklmnopqrstuvwxyz".chars() {
+        if !excluded.contains(letter) {
             guessable.push(letter);
         }
     }
@@ -350,7 +351,7 @@ mod tests {
         // Order of guessable letters does not matter
         let guessable: HashSet<char> =
             HashSet::from_iter((&get_guessable("?e??o", "tains")).chars());
-        let expected = HashSet::from(['e', 'o', 't', 'a', 'i', 'n', 's']);
+        let expected = HashSet::from_iter("bcdfghjklmpqruvwxyz".chars());
 
         assert_eq!(guessable, expected)
     }
