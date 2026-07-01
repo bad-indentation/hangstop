@@ -202,11 +202,20 @@ fn get_guessable(state: &str, forbidden: &str) -> String {
     guessable
 }
 
+/// A blazingly fast Rust command-line program to determine the best
+/// letter to guess in a Hangman game.
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Config {
+    /// The mystery word, with '?' representing unknown letters. Example: "h?llo"
     state: String,
+
+    /// Any letters known not to be in the word
+    #[arg(short, long, default_value_t = String::new())]
     incorrect: String,
+
+    /// When enabled, list the remaining candidate words and exit.
+    #[arg(short, long, default_value_t = false)]
     list: bool,
 }
 
