@@ -17,7 +17,7 @@ def read_words(filepath: str | Path, n: int) -> List[str]:
 
 def write_words(filepath: str | Path, words: List[str]) -> None:
     """Writes the words (assumed to end with newlines) to a file"""
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.writelines(words)
 
 if __name__ == "__main__":
