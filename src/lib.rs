@@ -30,7 +30,7 @@ const ALL_WORDS: &str = include_str!("../public/wordlist.txt");
 ///
 /// `forbidden`: Any incorrectly guessed letters.
 ///
-fn build_regex(state: &str, forbidden: &str) -> Result<String, &'static str> {
+pub fn build_regex(state: &str, forbidden: &str) -> Result<String, &'static str> {
     let state = state.to_lowercase();
     let forbidden = forbidden.to_lowercase();
 
@@ -63,7 +63,7 @@ fn build_regex(state: &str, forbidden: &str) -> Result<String, &'static str> {
 }
 
 /// Prunes the wordlist and removes any words that do not fit the regex
-fn prune_wordlist<T>(regex: String, wordlist: T) -> T
+pub fn prune_wordlist<T>(regex: String, wordlist: T) -> T
 where
     T: IntoIterator<Item = String> + FromIterator<String>,
 {
@@ -142,7 +142,7 @@ fn get_entropy(letter: char, wordlist: &HashSet<String>) -> f32 {
 
 /// This struct maps any given character to its associated entropy for easier
 /// sorting and retrieval
-struct LetterEntropy {
+pub struct LetterEntropy {
     letter: char,
     entropy: f32,
 }
@@ -178,7 +178,7 @@ impl Display for LetterEntropy {
 }
 
 /// Returns a sorted list of each letter matched to its respective entropy
-fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> Vec<LetterEntropy> {
+pub fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> Vec<LetterEntropy> {
     let mut entropies = Vec::new();
 
     for letter in remaining_letters.chars() {
@@ -195,7 +195,7 @@ fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> 
 
 /// Returns all letters that can be guessed without repeating a
 /// previous guess
-fn get_guessable(state: &str, forbidden: &str) -> String {
+pub fn get_guessable(state: &str, forbidden: &str) -> String {
     let mut guessable = String::new();
     let excluded = [state, forbidden].concat();
 
