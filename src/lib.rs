@@ -236,7 +236,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     }
     
     if word_set.len() == 1 {
-        println!("The mystery word must be {}.", word_set.drain().next().expect("length of set must be 1"));
+        println!("The mystery word must be '{}'.", word_set.drain().next().expect("length of set must be 1"));
         return Ok(());
     }
 
