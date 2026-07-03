@@ -31,3 +31,31 @@ fn get_guess(state: &str, forbidden: &str) -> Result<Guess, Box<dyn Error>> {
     Ok(Guess::Letter(get_sorted_entropies(&valid_letters, &word_set)[0].get_letter()))
 }
 
+struct Game<'a> {
+    word: &'a str,
+    state: String,
+    forbidden: String
+}
+
+impl Game<'_> {
+    fn new<'a>(word: &'a str) -> Game<'a> {
+        Game { word, state: "?".repeat(word.len()), forbidden: String::new() }
+    }
+
+    fn update(&mut self, guess: char) {
+        let mut found = false;
+
+        for (i, letter) in self.word.chars().enumerate() {
+            if letter == guess {
+                found = true;
+                self.state.remove(i);
+                self.state.insert(i, letter);
+            }
+        }
+
+        if !found {
+            self.forbidden.push(guess);
+        }
+    }
+}
+
