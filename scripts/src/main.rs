@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 
 use hangstop::*;
 use std::error::Error;
@@ -62,13 +62,13 @@ impl Game<'_> {
 /// For any given word length, represents the data needed to compute the
 /// average number of guesses and the average number of incorrect guesses 
 /// for that word
-struct Guesses {
+struct GuessData {
     total_guesses: usize,
     total_incorrect_guesses: usize,
     total_games: usize,
 }
 
-impl Guesses {
+impl GuessData {
     fn get_average_guesses(&self) -> f32 {
         self.total_guesses as f32 / self.total_games as f32
     }
@@ -82,3 +82,12 @@ impl Guesses {
     }
 }
 
+fn get_data(test_list: HashSet<String>) -> HashMap<usize, GuessData> {
+    let mut data = HashMap::new();
+
+    for word in test_list {
+        data.entry(word.len()).or_insert(GuessData { total_guesses: 0, total_incorrect_guesses: 0, total_games: 1 });
+    }
+
+    data
+}
