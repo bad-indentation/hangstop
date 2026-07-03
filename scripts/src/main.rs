@@ -59,3 +59,26 @@ impl Game<'_> {
     }
 }
 
+/// For any given word length, represents the data needed to compute the
+/// average number of guesses and the average number of incorrect guesses 
+/// for that word
+struct Guesses {
+    total_guesses: usize,
+    total_incorrect_guesses: usize,
+    total_games: usize,
+}
+
+impl Guesses {
+    fn get_average_guesses(&self) -> f32 {
+        self.total_guesses as f32 / self.total_games as f32
+    }
+
+    fn get_average_incorrect(&self) -> f32 {
+        self.total_incorrect_guesses as f32 / self.total_games as f32
+    }
+
+    fn print_csv_line(&self, word_length: usize) {
+        println!("{}, {}, {}", word_length, self.get_average_guesses(), self.get_average_incorrect());
+    }
+}
+
