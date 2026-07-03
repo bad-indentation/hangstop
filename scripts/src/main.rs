@@ -82,6 +82,9 @@ impl GuessData {
     }
 }
 
+/// Iterates ove the list of words and returns a hashmap mapping a possible 
+/// word length to the total number of games with that length, the total number
+/// of guesses, and the total number of incorrect guesses
 fn get_data(test_list: HashSet<String>) -> Result<HashMap<usize, GuessData>, Box<dyn Error>> {
     let mut data = HashMap::new();
 
@@ -110,6 +113,7 @@ fn get_data(test_list: HashSet<String>) -> Result<HashMap<usize, GuessData>, Box
                 }
 
                 Guess::NoSolution => {
+                    eprintln!("when guessing {word}:");
                     return Err("no solution occured, but test_list SHOULD be a subset of the original wordlist".into());
 
                 }
