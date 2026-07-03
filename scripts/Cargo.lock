@@ -191,6 +191,7 @@ name = "scripts"
 version = "0.1.0"
 dependencies = [
  "hangstop",
+ "regex",
 ]
 
 [[package]]
