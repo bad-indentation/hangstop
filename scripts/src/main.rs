@@ -1,10 +1,25 @@
 use std::collections::{HashSet, HashMap};
+use std::fs::read_to_string;
 
 use hangstop::*;
 use std::error::Error;
 
-fn main() {
-    println!("Hello, world!");
+fn main() -> Result<(), Box<dyn Error>>{
+    let small_wordlist = read_to_string("../public/reduced_wordlist.txt")?;
+    let small_wordlist: HashSet<String> = small_wordlist.split('\n').map(String::from).collect();
+
+    let mut results = get_data(small_wordlist)?;
+    
+    let mut numbered: Vec<(usize, GuessData)> = results.drain().collect();
+
+    numbered.sort_by_key(|pair| pair.0);
+
+    println!("length, avg. guesses, avg. incorrect");
+    for (length, data) in numbered {
+        data.print_csv_line(length);
+    }
+
+    Ok(())
 }
 
 enum Guess {
