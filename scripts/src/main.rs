@@ -82,12 +82,40 @@ impl GuessData {
     }
 }
 
-fn get_data(test_list: HashSet<String>) -> HashMap<usize, GuessData> {
+fn get_data(test_list: HashSet<String>) -> Result<HashMap<usize, GuessData>, Box<dyn Error>> {
     let mut data = HashMap::new();
 
     for word in test_list {
-        data.entry(word.len()).or_insert(GuessData { total_guesses: 0, total_incorrect_guesses: 0, total_games: 1 });
+        let mut game = Game::new(&word);
+        let count = data.entry(word.len()).or_insert(GuessData { total_guesses: 0, total_incorrect_guesses: 0, total_games: 0 });
+        count.total_games += 1;
+        loop {
+            let guess = get_guess(&game.state, &game.forbidden)?;
+            match guess {
+                Guess::Letter(letter) => {
+                    count.total_guesses += 1;
+                    game.update(letter);
+                    if !word.contains(letter) {
+                        count.total_incorrect_guesses += 1;
+                    }
+                }
+
+                Guess::Word(guessed_word) => {
+                    if guessed_word == word {
+                        break;
+                    }
+
+                    eprintln!("guesses {guessed_word} for secret word {word} but it was not the answer.");
+                    return Err("guessed word not the answer.".into());
+                }
+
+                Guess::NoSolution => {
+                    return Err("no solution occured, but test_list SHOULD be a subset of the original wordlist".into());
+
+                }
+            }
+        }
     }
 
-    data
+    Ok(data)
 }
