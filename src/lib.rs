@@ -12,7 +12,7 @@ use std::fmt::Display;
 use regex::Regex;
 use clap::Parser;
 
-const ALL_WORDS: &str = include_str!("../public/wordlist.txt");
+pub const ALL_WORDS: &str = include_str!("../public/wordlist.txt");
 
 /// Constructs a regular expression, as an owned String, given the game state
 /// and the incorrectly guessed characters. If `state` contains any characters
