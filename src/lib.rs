@@ -147,6 +147,18 @@ pub struct LetterEntropy {
     entropy: f32,
 }
 
+impl LetterEntropy {
+    /// Accessor method. Returns the associated letter
+    pub fn get_letter(&self) -> char {
+        self.letter
+    }
+
+    /// Accessor method. Returns the associated entropy
+    pub fn get_entropy(&self) -> f32 {
+        self.entropy
+    }
+}
+
 impl PartialEq for LetterEntropy {
     fn eq(&self, other: &Self) -> bool {
         self.entropy == other.entropy && self.letter == other.letter
