@@ -2,6 +2,9 @@ use std::collections::{HashSet, HashMap};
 use std::fs::read_to_string;
 
 use hangstop::*;
+
+use regex::Regex;
+
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>>{
@@ -22,28 +25,31 @@ fn main() -> Result<(), Box<dyn Error>>{
     Ok(())
 }
 
+/// Informtion returned by the get_guess function, including
+/// the guess and the filtered wordlist
 enum Guess {
-    Letter(char),
+    Letter(char, HashSet<String>),
     Word(String),
     NoSolution,
 }
 
-fn get_guess(state: &str, forbidden: &str) -> Result<Guess, Box<dyn Error>> {
+fn get_guess(state: &str, forbidden: &str, mut word_set: HashSet<String>) -> Result<Guess, Box<dyn Error>> {
     let re = build_regex(state, forbidden)?;
-    let mut word_set: HashSet<String> = ALL_WORDS.split('\n').map(String::from).collect();
-    word_set = prune_wordlist(re, word_set);
+    let re = Regex::new(&re).expect("regex should be valid.");
+    word_set = HashSet::from_iter(word_set.iter().filter(|word| re.is_match(word)).map(String::from));
 
     if word_set.is_empty() {
         return Ok(Guess::NoSolution);
     }
     
     if word_set.len() == 1 {
-        return Ok(Guess::Word(word_set.drain().next().expect("word_set must be length 1")));
+        let word = word_set.drain().next().expect("word_set must be length 1");
+        return Ok(Guess::Word(word));
     }
 
     let valid_letters = get_guessable(state, forbidden);
     
-    Ok(Guess::Letter(get_sorted_entropies(&valid_letters, &word_set)[0].get_letter()))
+    Ok(Guess::Letter(get_sorted_entropies(&valid_letters, &word_set)[0].get_letter(), word_set))
 }
 
 struct Game<'a> {
@@ -103,19 +109,29 @@ impl GuessData {
 fn get_data(test_list: HashSet<String>) -> Result<HashMap<usize, GuessData>, Box<dyn Error>> {
     let mut data = HashMap::new();
 
+    let original_word_set: HashSet<String> = ALL_WORDS.split('\n').map(String::from).collect();
     for word in test_list {
+        eprintln!("{word}");
+
+        let mut word_set = original_word_set.clone();
         let mut game = Game::new(&word);
         let count = data.entry(word.len()).or_insert(GuessData { total_guesses: 0, total_incorrect_guesses: 0, total_games: 0 });
+
         count.total_games += 1;
+
         loop {
-            let guess = get_guess(&game.state, &game.forbidden)?;
+            let guess = get_guess(&game.state, &game.forbidden, word_set)?;
+            eprintln!("{}, {}", &game.state, &game.forbidden);
             match guess {
-                Guess::Letter(letter) => {
+                Guess::Letter(letter, set) => {
                     count.total_guesses += 1;
-                    game.update(letter);
+
                     if !word.contains(letter) {
                         count.total_incorrect_guesses += 1;
                     }
+                    game.update(letter);
+
+                    word_set = set;
                 }
 
                 Guess::Word(guessed_word) => {
@@ -133,6 +149,7 @@ fn get_data(test_list: HashSet<String>) -> Result<HashMap<usize, GuessData>, Box
 
                 }
             }
+
         }
     }
 
