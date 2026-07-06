@@ -10,7 +10,7 @@ use std::error::Error;
 use std::fmt::Display;
 use std::iter::zip;
 
-use regex::Regex;
+// use regex::Regex;
 use clap::Parser;
 
 pub const ALL_WORDS: &str = include_str!("../public/wordlist.txt");
@@ -107,15 +107,13 @@ fn matches_constraints(word: &str, data: &GameData) -> bool {
 }
 
 /// Prunes the wordlist and removes any words that do not fit the regex
-pub fn prune_wordlist<T>(regex: String, wordlist: T) -> T
+pub fn prune_wordlist<T>(wordlist: T, data: &GameData) -> T
 where
     T: IntoIterator<Item = String> + FromIterator<String>,
 {
-    let re = Regex::new(&regex).expect("regex should be valid.");
-
     wordlist
         .into_iter()
-        .filter(|word| re.is_match(word))
+        .filter(|word| matches_constraints(word, &data))
         .collect()
 }
 
@@ -282,9 +280,10 @@ pub struct Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let prune_re = build_regex(&config.state, &config.incorrect)?;
+    // let prune_re = build_regex(&config.state, &config.incorrect)?;
     let mut word_set: HashSet<String> = ALL_WORDS.split('\n').map(String::from).collect();
-    word_set = prune_wordlist(prune_re, word_set);
+    let data = GameData::new(&config.state, &config.incorrect);
+    word_set = prune_wordlist(word_set, &data);
 
     if word_set.is_empty() {
         println!("There are no valid English words that match this game state.");
@@ -357,13 +356,14 @@ mod tests {
 
     #[test]
     fn test_prune_wordlist() {
-        let re = build_regex("abc??", "ghi").unwrap();
+        // let re = build_regex("abc??", "ghi").unwrap();
+        let data = GameData::new("abc??", "ghi");
         let words: HashSet<String> = ["abcde", "abcef", "abcfg", "abcgh", "abcbe", "abc"]
             .iter()
             .map(|s| s.to_string())
             .collect();
         let expected: HashSet<String> = ["abcde", "abcef"].iter().map(|s| s.to_string()).collect();
-        let filtered = prune_wordlist(re, words);
+        let filtered = prune_wordlist(words, &data);
 
         assert_eq!(expected, filtered);
     }
