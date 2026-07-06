@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn Error>>{
 
     numbered.sort_by_key(|pair| pair.0);
 
-    println!("length, avg. guesses, avg. incorrect");
+    println!("length, avg. guesses, avg. incorrect, number tested");
     for (length, data) in numbered {
         data.print_csv_line(length);
     }
@@ -100,7 +100,7 @@ impl GuessData {
     }
 
     fn print_csv_line(&self, word_length: usize) {
-        println!("{}, {}, {}", word_length, self.get_average_guesses(), self.get_average_incorrect());
+        println!("{}, {}, {}, {}", word_length, self.get_average_guesses(), self.get_average_incorrect(), self.total_games);
     }
 }
 
