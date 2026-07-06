@@ -3,7 +3,7 @@ use std::fs::read_to_string;
 
 use hangstop::*;
 
-use regex::Regex;
+// use regex::Regex;
 
 use std::error::Error;
 
@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn Error>>{
 
     numbered.sort_by_key(|pair| pair.0);
 
-    println!("length, avg. guesses, avg. incorrect");
+    println!("length, avg. guesses, avg. incorrect, number tested");
     for (length, data) in numbered {
         data.print_csv_line(length);
     }
@@ -34,9 +34,10 @@ enum Guess {
 }
 
 fn get_guess(state: &str, forbidden: &str, mut word_set: HashSet<String>) -> Result<Guess, Box<dyn Error>> {
-    let re = build_regex(state, forbidden)?;
-    let re = Regex::new(&re).expect("regex should be valid.");
-    word_set = HashSet::from_iter(word_set.iter().filter(|word| re.is_match(word)).map(String::from));
+    // let re = build_regex(state, forbidden)?;
+    // let re = Regex::new(&re).expect("regex should be valid.");
+    let data = GameData::new(state, forbidden);
+    word_set = HashSet::from_iter(word_set.iter().filter(|word| matches_constraints(word, &data)).map(String::from));
 
     if word_set.is_empty() {
         return Ok(Guess::NoSolution);
@@ -99,7 +100,7 @@ impl GuessData {
     }
 
     fn print_csv_line(&self, word_length: usize) {
-        println!("{}, {}, {}", word_length, self.get_average_guesses(), self.get_average_incorrect());
+        println!("{}, {}, {}, {}", word_length, self.get_average_guesses(), self.get_average_incorrect(), self.total_games);
     }
 }
 
