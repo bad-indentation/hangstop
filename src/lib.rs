@@ -111,6 +111,7 @@ pub fn prune_wordlist<T>(wordlist: T, data: &GameData) -> T
 where
     T: IntoIterator<Item = String> + FromIterator<String>,
 {
+    eprintln!("pruning wordlist");
     wordlist
         .into_iter()
         .filter(|word| matches_constraints(word, &data))
@@ -166,8 +167,11 @@ fn get_entropy_addend(occur: usize, total: usize) -> f32 {
 /// I'm sorry, I gave up on generics.
 /// [ ] TODO: make this work on any iterable type
 fn get_entropy(letter: char, wordlist: &HashSet<String>) -> f32 {
+    eprintln!("getting entropy for {letter}");
+
     let mut counter: HashMap<u32, usize> = HashMap::new();
     let mut total = 0;
+
     for word in wordlist {
         total += 1;
         counter
@@ -233,6 +237,7 @@ impl Display for LetterEntropy {
 
 /// Returns a sorted list of each letter matched to its respective entropy
 pub fn get_sorted_entropies(remaining_letters: &str, wordlist: &HashSet<String>) -> Vec<LetterEntropy> {
+    eprintln!("sorting entropies");
     let mut entropies = Vec::new();
 
     for letter in remaining_letters.chars() {
@@ -281,6 +286,7 @@ pub struct Config {
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     // let prune_re = build_regex(&config.state, &config.incorrect)?;
+    eprintln!("building wordlist");
     let mut word_set: HashSet<String> = ALL_WORDS.split('\n').map(String::from).collect();
     let data = GameData::new(&config.state, &config.incorrect);
     word_set = prune_wordlist(word_set, &data);
