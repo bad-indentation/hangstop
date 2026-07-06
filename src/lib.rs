@@ -14,6 +14,28 @@ use clap::Parser;
 
 pub const ALL_WORDS: &str = include_str!("../public/wordlist.txt");
 
+/// Contains the game state (the partially revealed word), the forbidden letters,
+/// and generates the letters to be exclude
+/// and generates the letters to be excluded
+pub struct GameData<'a> {
+    pub state: &'a str,
+    pub forbidden: &'a str,
+    pub all_excluded: HashSet<char>,
+}
+
+impl GameData<'_> {
+    pub fn new<'a>(state: &'a str, forbidden: &'a str) -> GameData<'a> {
+        let all_excluded =
+            HashSet::from_iter([state, forbidden].concat().chars().filter(|c| *c != '?'));
+
+        GameData {
+            state,
+            forbidden,
+            all_excluded,
+        }
+    }
+}
+
 /// Constructs a regular expression, as an owned String, given the game state
 /// and the incorrectly guessed characters. If `state` contains any characters
 /// other than `?` and ASCII letters or `forbidden` contains any characters
