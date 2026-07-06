@@ -8,6 +8,7 @@ use std::cmp;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fmt::Display;
+use std::iter::zip;
 
 use regex::Regex;
 use clap::Parser;
@@ -344,6 +345,17 @@ mod tests {
     }
 
     #[test]
+    fn test_matches_constraints() {
+        let state = "h????";
+        let forbidden = "ay";
+        let data = GameData::new(state, forbidden);
+
+        assert!(matches_constraints("hello", &data));
+        assert!(!matches_constraints("happy", &data));
+        assert!(!matches_constraints("he", &data));
+    }
+
+    #[test]
     fn test_prune_wordlist() {
         let re = build_regex("abc??", "ghi").unwrap();
         let words: HashSet<String> = ["abcde", "abcef", "abcfg", "abcgh", "abcbe", "abc"]
@@ -410,4 +422,5 @@ mod tests {
 
         assert_eq!(guessable, expected)
     }
+    
 }
