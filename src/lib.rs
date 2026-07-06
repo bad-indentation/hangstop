@@ -88,7 +88,7 @@ pub fn build_regex(state: &str, forbidden: &str) -> Result<String, &'static str>
 /// Returns `true` if the word contains all of the letters uncovered in `state`,
 /// in the correct locations, and does not contain any of `all_excluded` in
 /// the covered locations.
-fn matches_constraints(word: &str, data: &GameData) -> bool {
+pub fn matches_constraints(word: &str, data: &GameData) -> bool {
     if word.len() != data.state.len() {
         return false;
     }
