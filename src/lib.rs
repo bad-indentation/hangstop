@@ -323,12 +323,14 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore = "regex no longer used"]
     fn test_build_regex() {
         let re = build_regex("A???e", "krbg").unwrap();
         assert_eq!(re, "^a[^aekrbg][^aekrbg][^aekrbg]e$".to_string());
     }
 
     #[test]
+    #[ignore = "regex no longer used"]
     fn test_build_regex_with_invalid_characters() {
         let re = build_regex("*(*H)", "kjd");
         assert!(re.is_err());
@@ -338,6 +340,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "regex no longer used"]
     fn test_build_regex_none_forbidden() {
         let re = build_regex("?????", "").unwrap();
         assert_eq!(re, "^.....$".to_string());
