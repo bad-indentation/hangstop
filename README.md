@@ -78,9 +78,8 @@ flaying
 
 ## Implementation details
 HangStop uses Shannon entropy to determine which letter to guess next:
-$$
-H = \sum_{i}^{n} p(x_i) \cdot \log_2({\frac{1}{p(x_i)}})
-$$
+
+![Shannon Entropy Equation](assets/equation.png)
 
 Here, 'H' is the entropy, while 'n' is the total number of ways a given letter 
 can uncover spaces in the secret word. 'x_i' is one of those possible uncoverings,
