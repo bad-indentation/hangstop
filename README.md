@@ -76,6 +76,10 @@ playing
 claying
 flaying
 ```
+## Installation
+```bash
+cargo install hangstop
+```
 
 ## Implementation details
 HangStop uses Shannon entropy to determine which letter to guess next:
@@ -123,11 +127,6 @@ informative CSVs:
 Some of the other iterations performed marginally better in certain cases, but
 we ultimately opted for the simple Shannon entropy calculation to emphasize
 transparency and stability.
-
-## Installation
-```bash
-cargo install hangstop
-```
 
 ## License
 HangStop is licensed under the MIT license. This means that you are free to 
