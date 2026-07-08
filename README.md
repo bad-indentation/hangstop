@@ -65,8 +65,9 @@ blazing
 16 possible words remaining
 ```
 
-Important data is cleanly separated from logging and other messages so that
-data can be cleanly dumped or piped into other commands:
+Important data is printed to stdout and cleanly separated from logging and 
+other messages in stderr so that data can be cleanly dumped or piped into other 
+commands:
 
 ```bash
 $ hangstop "?la???g" -i "es" -l | rg "ay"
@@ -87,7 +88,7 @@ and 'p(x_i)' is the probability that that uncovering will occur. Essentially,
 the entropy is a weighted average of all of the possible amounts of information
 a given letter can uncover. 
 
-Hangstop calculates this entropy for every letter and thus determines which
+HangStop calculates this entropy for every letter and thus determines which
 letters are likely to yield the most information.
 
 ## About the Predecessor
