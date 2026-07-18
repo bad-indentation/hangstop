@@ -233,7 +233,11 @@ pub struct Config {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     // let prune_re = build_regex(&config.state, &config.incorrect)?;
     let mut word_set: HashSet<String> = ALL_WORDS.split('\n').map(String::from).collect();
-    let data = GameData::new(&config.state, &config.incorrect);
+    
+    let state = &config.state.to_lowercase();
+    let incorrect = &config.incorrect.to_lowercase();
+
+    let data = GameData::new(state, incorrect);
     word_set = prune_wordlist(word_set, &data);
 
     if word_set.is_empty() {
